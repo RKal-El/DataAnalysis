@@ -50,3 +50,4 @@ coverage.xml
 # My extensions
 *.xml
 .idea/
+*.iml
