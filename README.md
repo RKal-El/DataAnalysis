@@ -14,7 +14,7 @@ I am going to use python with Pycharm (https://www.jetbrains.com/pycharm/?fromMe
 I will try to use as much as possible self explanatory code.
 Source code is going to be in .py file and with graphs and charts I make in projects will be saved as images.
 
-I find data that seem interesting to me, and with which I can make storytelling (make samo elementary statistic, try to find some interesting facts, and visualize as much as possible of these questions I came up).
+Also note that I am going to do data analysis on datasets that seem interesting to me.
 
 # License
 MIT
