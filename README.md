@@ -1,4 +1,4 @@
-# DataStorytelling
+# Data Analysys
 
 After finnishing book Python for Data Analysis it's time to test acquired knowledge and skills.
 
