@@ -43,17 +43,14 @@ def top_3_per_tournament(data, column_of_names):
         tournament, player = row['TOURNAMENT'], row[column_of_names]
         if (tournament != 'Australian Open (Jan)') & (tournament != 'Australian Open (Dec)'):
             table_player_tournament[tournament].loc[player] += 1
-
     us_open = table_player_tournament['U.S. Open'].copy()
     australian_open = table_player_tournament['Australian Open'].copy()
     french_open = table_player_tournament['French Open'].copy()
     wimbledon = table_player_tournament['Wimbledon'].copy()
-
     us_open.sort_values(inplace=True, ascending=False)
     australian_open.sort_values(inplace=True, ascending=False)
     french_open.sort_values(inplace=True, ascending=False)
     wimbledon.sort_values(inplace=True, ascending=False)
-
     return us_open[:3], australian_open[:3], french_open[:3], wimbledon[:3]
 
 
@@ -92,7 +89,6 @@ def rearrange_data_multiple_indices(tennis_dataset):
     multiple_column_indices = pandas.MultiIndex.from_product(array_of_indices)
     table = pandas.DataFrame(index=set(tennis_dataset.YEAR),
                              columns=multiple_column_indices)
-
     for index, data in tennis_dataset.iterrows():
         if(data[1] == 'Australian Open (Dec)') | (data[1] == 'Australian Open (Jan)'):
             continue
@@ -128,7 +124,7 @@ def top_player_per_tournament_in_row(dataset):
 
 def plot_best_player_in_the_row(best_players):
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-    fig.suptitle('Players with most win/lose finales in the row', fontsize=16)
+    fig.suptitle('Players with the most win/lose finales in the row', fontsize=16)
     plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, hspace=0.4, wspace=0.3)
     for row in range(2):
         for column in range(2):
@@ -149,10 +145,8 @@ def plot_best_player_in_the_row(best_players):
                                        y=best_players['In the row'][place] / 2.2,
                                        s=best_players['Win/Lose'][place],
                                        fontsize=12, horizontalalignment='center')
-
             best_players.drop([0, 1], inplace=True)
             best_players.index = range(len(best_players.index))
-
     title_of_image = input('\nWhat is going to be name of image?\n')
     title_of_image += '.png'
     plt.savefig(title_of_image, dpi=600, format='png')
