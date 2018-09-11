@@ -153,7 +153,37 @@ def plot_best_player_in_the_row(best_players):
     plt.show()
 
 
+def lucky_and_unlucky_players(data):
+    set_of_winners = set(data.WINNER)
+    set_of_runner_up = set(data['RUNNER UP'])
+    only_win_if_in_final = set_of_winners - set_of_runner_up
+    only_lose_if_in_final = set_of_runner_up - set_of_winners
+    return pandas.DataFrame({'Only win': [len(only_win_if_in_final)], 'Only lose': [len(only_lose_if_in_final)]})
+
+
+def plot_lucky_and_unlucky_players(dictionary_data):
+    x = list(dictionary_data.columns)
+    y = list(dictionary_data.loc[0])
+    plt.figure(figsize=(10, 7))
+    plt.bar(x, y, width=0.4)
+    for index in range(2):
+        plt.text(x=index,
+                 y=y[index] / 2,
+                 s=y[index],
+                 fontsize=15,
+                 horizontalalignment='center')
+    plt.title('Number of player who came to the final and only had won (lucky ones) or only had lost (unlucky ones)')
+    plt.savefig('Number of lucky players vs number of unlucky players.png', dpi=600, format='png')
+    plt.show()
+
+
 tennis_data = import_data_from_csv_to_variable()
+
+top_5_winner_players_overall = top_5_overall(tennis_data, 'WINNER')
+plot_top_5_overall(top_5_winner_players_overall)
+
+top_5_runner_up_players_overall = top_5_overall(tennis_data, 'RUNNER UP')
+plot_top_5_overall(top_5_runner_up_players_overall)
 
 top_3_us_win, top_3_aus_win, top_3_fra_win, top_3_wim_win = top_3_per_tournament(tennis_data, 'WINNER')
 plot_top_3_per_tournament('winners', top_3_us_win, top_3_aus_win, top_3_fra_win, top_3_wim_win)
@@ -164,3 +194,6 @@ plot_top_3_per_tournament('runner up', top_3_us_run, top_3_aus_run, top_3_fra_ru
 index_year_column_tournament_winner_loser = rearrange_data_multiple_indices(tennis_data)
 best_player_in_the_row = top_player_per_tournament_in_row(index_year_column_tournament_winner_loser)
 plot_best_player_in_the_row(best_player_in_the_row)
+
+only_win_lose_finalists = lucky_and_unlucky_players(tennis_data)
+plot_lucky_and_unlucky_players(only_win_lose_finalists)
