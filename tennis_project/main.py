@@ -177,6 +177,50 @@ def plot_lucky_and_unlucky_players(dictionary_data):
     plt.show()
 
 
+def top_5_finalists(dataset):
+    top_5 = pandas.DataFrame(columns=['Overall', 'Win', 'Percent_win', 'Lose', 'Percent_lose'], index=set(dataset['WINNER']).union(set(dataset['RUNNER UP'])))
+    list_of_winners = list(dataset['WINNER'])
+    list_of_losers = list(dataset['RUNNER UP'])
+    for name in top_5.index:
+        top_5['Win'].loc[name] = list_of_winners.count(name)
+        top_5['Lose'].loc[name] = list_of_losers.count(name)
+        top_5['Overall'].loc[name] = top_5['Win'].loc[name] + top_5['Lose'].loc[name]
+        top_5['Percent_win'].loc[name] = round(top_5['Win'].loc[name] / top_5['Overall'].loc[name], 2)
+        top_5['Percent_lose'].loc[name] = round(1 - top_5['Percent_win'].loc[name], 2)
+    top_5.sort_values(by=['Overall'], inplace=True, ascending=False)
+    return top_5.iloc[:5]
+
+
+def plot_top_5_finalists(data):
+    data.sort_values(by=['Percent_win'], inplace=True, ascending=False)
+    ratio_win_lose = plt.figure(figsize=(12, 5))
+    subplot_111 = ratio_win_lose.add_subplot(111)
+    bar_width = 0.3
+    x = list(data.index.values)
+    y_win = list(data['Percent_win'])
+    y_lose = list(data['Percent_lose'])
+    y_win_number = list(data['Win'])
+    y_lose_number = list(data['Lose'])
+    bar_win = subplot_111.bar(x, y_win, bar_width, color='seagreen')
+    bar_lose = subplot_111.bar(x, y_lose, bar_width, color='orangered', bottom=y_win)
+    subplot_111.set_title('Ratio of won and lost finales among 5 players with most finales', fontsize=14)
+    for index in range(5):
+        plt.text(x=x[index],
+                 y=y_win[index] / 2,
+                 s=y_win_number[index],
+                 fontsize=13,
+                 horizontalalignment='center')
+        plt.text(x=x[index],
+                 y=y_lose[index] / 2 + y_win[index],
+                 s=y_lose_number[index],
+                 fontsize=13,
+                 horizontalalignment='center')
+    plt.subplots_adjust(left=0.05, right=0.85, bottom=0.1, top=0.9)
+    plt.legend((bar_win, bar_lose), ('Victories', 'Defeats'), loc=(1.02, 0.45), fontsize=12)
+    plt.savefig('Ratio between victories and defeats among top 5 finalists', dpi=600)
+    plt.show()
+
+
 tennis_data = import_data_from_csv_to_variable()
 
 top_5_winner_players_overall = top_5_overall(tennis_data, 'WINNER')
@@ -197,3 +241,6 @@ plot_best_player_in_the_row(best_player_in_the_row)
 
 only_win_lose_finalists = lucky_and_unlucky_players(tennis_data)
 plot_lucky_and_unlucky_players(only_win_lose_finalists)
+
+players_with_the_most_finales = top_5_finalists(tennis_data)
+plot_top_5_finalists(players_with_the_most_finales)
