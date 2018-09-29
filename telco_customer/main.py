@@ -20,7 +20,7 @@ def count_female_and_male_customer(dataset):
 
 def plot_female_and_male_customer(females, males):
     fig, ax = plt.subplots(figsize=(8, 6))
-    fig.suptitle('Comparison of number males and females customers', fontsize=14)
+    fig.suptitle('Number of males and females customers', fontsize=14)
     x = ['Females', 'Males']
     y = [females, males]
     plt.bar(x, y, width=0.35, color=['orchid', 'royalblue'])
