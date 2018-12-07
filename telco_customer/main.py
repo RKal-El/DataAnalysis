@@ -75,6 +75,58 @@ def plot_gender_age_customer_division(number_of_customers):
     plt.show()
 
 
+def monthly_charges_extraction(dataset, dependecies):
+    '''
+    :parameter dataset: a full dataset of telco customers
+    :parameter dependecies: list [gender, SeniorCitizen, Partner, MonthlyCharges]
+    '''
+    dataset_with_dependencies = dataset[dependecies]
+    '''
+    :variable dataset_set_dependencies: DataFrame: columns: [Dependencies, MonthlyCharges]
+        values for Dependencies: Senior_Female_with_Partner, Young_Female_with_Partner, Senior_Female_without_Partner, Young_Female_without_Partner,
+                                 Senior_Male_with_Partner, Young_Male_with_Partner, Senior_Male_without_Partner, Young_Male_without_Partner
+    '''
+    dataset_set_dependencies = pandas.DataFrame()
+
+    for index, data in dataset_with_dependencies.iterrows():
+        if (data[0] == 'Female') & (data[1] == 1) & (data[2] == 'Yes'):
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Female_with_Partner', 'MonthlyCharges': data[3]},
+                                                                       ignore_index=True)
+        elif (data[0] == 'Female') & (data[1] == 0) & (data[2] == 'Yes'):
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Female_with_Partner', 'MonthlyCharges': data[3]},
+                                                                       ignore_index=True)
+        elif (data[0] == 'Female') & (data[1] == 1) & (data[2] == 'No'):
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Female_without_Partner', 'MonthlyCharges': data[3]},
+                                                                       ignore_index=True)
+        elif (data[0] == 'Female') & (data[1] == 0) & (data[2] == 'No'):
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Female_without_Partner', 'MonthlyCharges': data[3]},
+                                                                       ignore_index=True)
+        elif (data[0] == 'Male') & (data[1] == 1) & (data[2] == 'Yes'):
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Male_with_Partner', 'MonthlyCharges': data[3]},
+                                                                       ignore_index=True)
+        elif (data[0] == 'Male') & (data[1] == 0) & (data[2] == 'Yes'):
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Male_with_Partner', 'MonthlyCharges': data[3]},
+                                                                       ignore_index=True)
+        elif (data[0] == 'Male') & (data[1] == 1) & (data[2] == 'No'):
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Male_without_Partner', 'MonthlyCharges': data[3]},
+                                                                       ignore_index=True)
+        else:
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Male_without_Partner', 'MonthlyCharges': data[3]},
+                                                                       ignore_index=True)
+
+    return dataset_set_dependencies
+
+
+def plot_monthly_charges(dataset):
+    plt.figure(figsize=(12, 9))
+    seaborn.boxplot(x='Dependencies', y='MonthlyCharges', data=dataset, showfliers=False)
+    plt.subplots_adjust(top=0.95, right=0.95, bottom=0.1, left=0.05)
+    plt.xticks(rotation=10)
+    image_name = "Monthly charges for females and males with or without partner.png"
+    plt.savefig(image_name, dpi=1200)
+    plt.show()
+
+
 telco_customer_dataset = import_dataset()
 
 number_of_females, number_of_males = count_female_and_male_customer(telco_customer_dataset)
@@ -82,3 +134,6 @@ plot_female_and_male_customer(number_of_females, number_of_males)
 
 gender_age_customers = gender_age_customer_division(telco_customer_dataset)
 plot_gender_age_customer_division(gender_age_customers)
+
+sy_fm_wpwop_monthly_charges = monthly_charges_extraction(telco_customer_dataset, ['gender', 'SeniorCitizen', 'Partner', 'MonthlyCharges'])
+plot_monthly_charges(sy_fm_wpwop_monthly_charges)
