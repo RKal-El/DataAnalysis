@@ -67,7 +67,7 @@ def plot_gender_age_customer_division(number_of_customers):
     ax.pie(number_of_customers.sum(axis=1), radius=1, colors=outer_colors,
            autopct='%1.1f%%', pctdistance=0.8,
            wedgeprops=dict(width=size, edgecolor='w'))
-    ax.pie(number_of_customers.flatten(), radius=1-size, colors=inner_colors,
+    ax.pie(number_of_customers.flatten(), radius=1 - size, colors=inner_colors,
            autopct='%1.1f%%', pctdistance=0.75,
            wedgeprops=dict(width=size, edgecolor='w'))
     plt.legend(labels, loc='best')
@@ -75,14 +75,14 @@ def plot_gender_age_customer_division(number_of_customers):
     plt.show()
 
 
-def monthly_charges_extraction(dataset, dependecies):
+def charge_extraction(dataset, dependecies):
     '''
     :parameter dataset: a full dataset of telco customers
-    :parameter dependecies: list [gender, SeniorCitizen, Partner, MonthlyCharges]
+    :parameter dependecies: list [gender, SeniorCitizen, Partner, MonthlyCharges(TotalCharges)]
     '''
     dataset_with_dependencies = dataset[dependecies]
     '''
-    :variable dataset_set_dependencies: DataFrame: columns: [Dependencies, MonthlyCharges]
+    :variable dataset_set_dependencies: DataFrame: columns: [Dependencies, MonthlyCharges(TotalCharges)]
         values for Dependencies: Senior_Female_with_Partner, Young_Female_with_Partner, Senior_Female_without_Partner, Young_Female_without_Partner,
                                  Senior_Male_with_Partner, Young_Male_with_Partner, Senior_Male_without_Partner, Young_Male_without_Partner
     '''
@@ -90,39 +90,49 @@ def monthly_charges_extraction(dataset, dependecies):
 
     for index, data in dataset_with_dependencies.iterrows():
         if (data[0] == 'Female') & (data[1] == 1) & (data[2] == 'Yes'):
-            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Female_with_Partner', 'MonthlyCharges': data[3]},
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Female_with_Partner', dependecies[3]: data[3]},
                                                                        ignore_index=True)
         elif (data[0] == 'Female') & (data[1] == 0) & (data[2] == 'Yes'):
-            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Female_with_Partner', 'MonthlyCharges': data[3]},
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Female_with_Partner', dependecies[3]: data[3]},
                                                                        ignore_index=True)
         elif (data[0] == 'Female') & (data[1] == 1) & (data[2] == 'No'):
-            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Female_without_Partner', 'MonthlyCharges': data[3]},
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Female_without_Partner', dependecies[3]: data[3]},
                                                                        ignore_index=True)
         elif (data[0] == 'Female') & (data[1] == 0) & (data[2] == 'No'):
-            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Female_without_Partner', 'MonthlyCharges': data[3]},
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Female_without_Partner', dependecies[3]: data[3]},
                                                                        ignore_index=True)
         elif (data[0] == 'Male') & (data[1] == 1) & (data[2] == 'Yes'):
-            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Male_with_Partner', 'MonthlyCharges': data[3]},
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Male_with_Partner', dependecies[3]: data[3]},
                                                                        ignore_index=True)
         elif (data[0] == 'Male') & (data[1] == 0) & (data[2] == 'Yes'):
-            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Male_with_Partner', 'MonthlyCharges': data[3]},
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Male_with_Partner', dependecies[3]: data[3]},
                                                                        ignore_index=True)
         elif (data[0] == 'Male') & (data[1] == 1) & (data[2] == 'No'):
-            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Male_without_Partner', 'MonthlyCharges': data[3]},
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Senior_Male_without_Partner', dependecies[3]: data[3]},
                                                                        ignore_index=True)
         else:
-            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Male_without_Partner', 'MonthlyCharges': data[3]},
+            dataset_set_dependencies = dataset_set_dependencies.append({'Dependencies': 'Young_Male_without_Partner', dependecies[3]: data[3]},
                                                                        ignore_index=True)
 
     return dataset_set_dependencies
 
 
-def plot_monthly_charges(dataset):
-    plt.figure(figsize=(12, 9))
-    seaborn.boxplot(x='Dependencies', y='MonthlyCharges', data=dataset, showfliers=False)
+def is_float_is_not_nan(dataset, column):
+    if dataset.dtypes[1] != numpy.float:
+        dataset[column] = pandas.to_numeric(dataset[column], errors='coerce')
+        dataset.dropna(subset=[column], inplace=True)
+        dataset_without_nan = dataset.reset_index(drop=True)
+        return dataset_without_nan
+    else:
+        return dataset
+
+
+def plot_charge(dataset, type_of_charge):
+    plt.figure(figsize=(14, 9))
+    seaborn.boxplot(x='Dependencies', y=dataset.columns.values[1], data=dataset, showfliers=False)
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.1, left=0.05)
     plt.xticks(rotation=10)
-    image_name = "Monthly charges for females and males with or without partner.png"
+    image_name = type_of_charge + " charges for females and males with or without partner.png"
     plt.savefig(image_name, dpi=1200)
     plt.show()
 
@@ -136,4 +146,9 @@ gender_age_customers = gender_age_customer_division(telco_customer_dataset)
 plot_gender_age_customer_division(gender_age_customers)
 
 sy_fm_wpwop_monthly_charges = monthly_charges_extraction(telco_customer_dataset, ['gender', 'SeniorCitizen', 'Partner', 'MonthlyCharges'])
-plot_monthly_charges(sy_fm_wpwop_monthly_charges)
+sy_fm_wpwop_monthly_charges_without_nan = is_float_is_not_nan(sy_fm_wpwop_monthly_charges, 'MonthlyCharges')
+plot_monthly_charges(sy_fm_wpwop_monthly_charges_without_nan, 'Monthly')
+
+sy_fm_wpwop_total_charges = charge_extraction(telco_customer_dataset, ['gender', 'SeniorCitizen', 'Partner', 'TotalCharges'])
+sy_fm_wpwop_total_charges_without_nan = is_float_is_not_nan(sy_fm_wpwop_total_charges, 'TotalCharges')
+plot_charge(sy_fm_wpwop_total_charges_without_nan, 'Total')
