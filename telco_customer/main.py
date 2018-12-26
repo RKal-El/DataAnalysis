@@ -8,14 +8,13 @@ def import_dataset():
 
 
 def data_distribution_plot(dataset):
-    fig, axes = plt.subplots(1, 3, figsize=(16, 9))
+    fig, axes = plt.subplots(1, 2, figsize=(16, 9))
     plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, hspace=0.2, wspace=0.3)
     total_charges = convert_to_float(dataset['TotalCharges'])
     seaborn.distplot(dataset['MonthlyCharges'], ax=axes[0])
     seaborn.distplot(total_charges['TotalCharges'], ax=axes[1])
-    seaborn.distplot(dataset['tenure'], ax=axes[2])
     names_of_columns = list(dataset.columns)
-    for subplot in range(3):
+    for subplot in range(2):
         axes[subplot].grid()
         axes[subplot].set_title(names_of_columns[subplot])
         axes[subplot].set_ylabel('Amount of customers')
@@ -177,3 +176,5 @@ plot_monthly_charges(sy_fm_wpwop_monthly_charges_without_nan, 'Monthly')
 sy_fm_wpwop_total_charges = charge_extraction(telco_customer_dataset, ['gender', 'SeniorCitizen', 'Partner', 'TotalCharges'])
 sy_fm_wpwop_total_charges_without_nan = is_float_is_not_nan(sy_fm_wpwop_total_charges, 'TotalCharges')
 plot_charge(sy_fm_wpwop_total_charges_without_nan, 'Total')
+
+data_distribution_plot(telco_customer_dataset[['MonthlyCharges', 'TotalCharges']])
