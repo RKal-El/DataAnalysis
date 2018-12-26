@@ -7,6 +7,31 @@ def import_dataset():
     return pandas.read_csv(path)
 
 
+def data_distribution_plot(dataset):
+    fig, axes = plt.subplots(1, 3, figsize=(16, 9))
+    plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, hspace=0.2, wspace=0.3)
+    total_charges = convert_to_float(dataset['TotalCharges'])
+    seaborn.distplot(dataset['MonthlyCharges'], ax=axes[0])
+    seaborn.distplot(total_charges['TotalCharges'], ax=axes[1])
+    seaborn.distplot(dataset['tenure'], ax=axes[2])
+    names_of_columns = list(dataset.columns)
+    for subplot in range(3):
+        axes[subplot].grid()
+        axes[subplot].set_title(names_of_columns[subplot])
+        axes[subplot].set_ylabel('Amount of customers')
+        axes[subplot].set_xlabel('Bill')
+    plt.savefig('Data distribution.png', dpi=1200)
+    plt.show()
+
+
+def convert_to_float(dataset):
+    dataset_with_numbers = pandas.DataFrame()
+    for _, data in enumerate(dataset):
+        if not (data and (data.isspace())):
+            dataset_with_numbers = dataset_with_numbers.append({'TotalCharges': float(data)}, ignore_index=True)
+    return dataset_with_numbers.copy()
+
+
 def count_female_and_male_customer(dataset):
     column_gender = dataset['gender']
     female = male = 0
