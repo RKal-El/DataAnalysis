@@ -161,6 +161,44 @@ def plot_charge(dataset, type_of_charge):
     plt.show()
 
 
+def connection_monthly_total_charges(dataset):
+    clean_dataset = pandas.DataFrame()
+    for index, data in dataset.iterrows():
+        if not (data[1] and (data[1].isspace())):
+            clean_dataset = clean_dataset.append({'MonthlyCharges': data[0], 'TotalCharges': float(data[1]), 'Tenure': data[2]}, ignore_index=True)
+
+    X = clean_dataset['MonthlyCharges']
+    Y = clean_dataset['TotalCharges']
+    Z = clean_dataset['Tenure']
+    data = numpy.c_[X, Y, Z]
+
+    best_fit_1st_order_connection(data)
+
+
+def best_fit_1st_order_connection(dataset):
+    minimum = numpy.min(dataset, axis=0)
+    maximum = numpy.max(dataset, axis=0)
+    X, Y = numpy.meshgrid(numpy.linspace(minimum[0], maximum[0], 20), numpy.linspace(minimum[1], maximum[1], 20))
+
+    A = numpy.c_[dataset[:, 0], dataset[:, 1], numpy.ones(dataset.shape[0])]
+    C, _, _, _ = scipy.linalg.lstsq(A, dataset[:, 2])
+    Z = C[0] * X + C[1] * Y + C[2]
+
+    fig = plt.figure(figsize=(8, 8))
+    plt.subplots_adjust(top=0.99, right=0.99, bottom=0.01, left=0.01)
+    fig.suptitle('1st- order (liner) plane', fontsize=14)
+    ax = fig.gca(projection='3d')
+
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, alpha=0.9)
+    ax.scatter(dataset[:, 0], dataset[:, 1], dataset[:, 2], c='r', s=5, marker='o')
+
+    ax.set_xlabel('MonthlyCharges')
+    ax.set_ylabel('TotalCharges')
+    ax.set_zlabel('Tenure')
+    plt.savefig("1st order best fit for monthly and total charges and tenure", dpi=1200)
+    plt.show()
+
+
 telco_customer_dataset = import_dataset()
 
 number_of_females, number_of_males = count_female_and_male_customer(telco_customer_dataset)
@@ -178,3 +216,5 @@ sy_fm_wpwop_total_charges_without_nan = is_float_is_not_nan(sy_fm_wpwop_total_ch
 plot_charge(sy_fm_wpwop_total_charges_without_nan, 'Total')
 
 data_distribution_plot(telco_customer_dataset[['MonthlyCharges', 'TotalCharges']])
+
+connection_monthly_total_charges(telco_customer_dataset[['MonthlyCharges', 'TotalCharges', 'tenure']].copy())
