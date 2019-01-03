@@ -173,6 +173,7 @@ def connection_monthly_total_charges(dataset):
     data = numpy.c_[X, Y, Z]
 
     best_fit_1st_order_connection(data)
+    best_fit_2nd_order_connection(data)
 
 
 def best_fit_1st_order_connection(dataset):
@@ -186,7 +187,7 @@ def best_fit_1st_order_connection(dataset):
 
     fig = plt.figure(figsize=(8, 8))
     plt.subplots_adjust(top=0.99, right=0.99, bottom=0.01, left=0.01)
-    fig.suptitle('1st- order (liner) plane', fontsize=14)
+    fig.suptitle('1st-order (liner) plane', fontsize=14)
     ax = fig.gca(projection='3d')
 
     ax.plot_surface(X, Y, Z, rstride=1, cstride=1, alpha=0.9)
@@ -196,6 +197,33 @@ def best_fit_1st_order_connection(dataset):
     ax.set_ylabel('TotalCharges')
     ax.set_zlabel('Tenure')
     plt.savefig("1st order best fit for monthly and total charges and tenure", dpi=1200)
+    plt.show()
+
+
+def best_fit_2nd_order_connection(dataset):
+    minimum = numpy.min(dataset, axis=0)
+    maximum = numpy.max(dataset, axis=0)
+    X, Y = numpy.meshgrid(numpy.linspace(minimum[0], maximum[0], 20), numpy.linspace(minimum[1], maximum[1], 20))
+    XX = X.flatten()
+    YY = Y.flatten()
+
+    A = numpy.c_[numpy.ones(dataset.shape[0]), dataset[:, :2], numpy.prod(dataset[:, :2], axis=1), dataset[:, :2]**2]
+    C, _, _, _ = scipy.linalg.lstsq(A, dataset[:, 2])
+    Z = numpy.dot(numpy.c_[numpy.ones(XX.shape), XX, YY, XX * YY, XX**2, YY**2], C).reshape(X.shape)
+
+    fig = plt.figure(figsize=(8, 8))
+    plt.subplots_adjust(top=0.99, right=0.99, bottom=0.01, left=0.01)
+    fig.suptitle('2nd-order (quadratic) surface', fontsize=14)
+    ax = fig.gca(projection='3d')
+
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, alpha=0.9)
+    ax.scatter(dataset[:, 0], dataset[:, 1], dataset[:, 2], c='r', s=5, marker='o')
+
+    ax.set_xlabel('MonthlyCharges')
+    ax.set_ylabel('TotalCharges')
+    ax.set_zlabel('Tenure')
+
+    plt.savefig("2st order best fit for monthly and total charges and tenure", dpi=1200)
     plt.show()
 
 
